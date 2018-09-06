@@ -30,7 +30,7 @@ var budgetController = (function () {
             if (data.allItems[type].length > 0) {
                 ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
             } else {
-                ID = 0;
+                ID = 0;  
             }
             // Create new item based on 'exp' or 'inc' type
             if (type === 'expense') {
