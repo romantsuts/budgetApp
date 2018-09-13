@@ -16,9 +16,9 @@ var budgetController = (function () {
         var summ = 0;
 
         data.allItems[type].forEach(function(current){
-            console.log(current.value);
+             summ += current.value;
         });
-
+        data.totals[type] = summ;
     }
 
     var data = {
@@ -29,7 +29,9 @@ var budgetController = (function () {
         totals: {
             expense: 0,
             income: 0
-        }
+        },
+        budget: 0,
+        percentage: -1 // so if it's no value, cannot be persentage (so it's doesn't exist at some point)
     };
 
     return {
@@ -59,11 +61,27 @@ var budgetController = (function () {
 
         calculateBudget: function() {
             // calculate total income and expenses
-            calculateTotal();
+            calculateTotal('income');
+            calculateTotal('expense');
             // calculate the budget : income - expenses
+            data.budget = data.totals.income - data.totals.expense;
 
             // calculate the percentage of income that we spent
+            if(data.totals.income > 0) {
+                data.percentage = Math.round((data.totals.expense / data.totals.income) * 100);
+            } else {
+                data.percentage = -1;
+            }
+            
+        },
 
+        getBudget: function() {
+            return {
+                budget: data.budget,
+                percentage: data.percentage,
+                totalInc: data.totals.income,
+                totalExp: data.totals.expense
+            };
         },
 
         testing: function () {
@@ -83,7 +101,11 @@ var UIController = (function () {
         inputValue: '.add__value',
         inputBtn: '.add__btn',
         expensesContainer: '.expenses__list',
-        incomeContainer: '.income__list'
+        incomeContainer: '.income__list',
+        budgetLabel: '.budget__value',
+        incomeLabel: '.budget__income--value',
+        expenseLabel: '.budget__expenses--value',
+        percentageLabel: '.budget__expenses--percentage'
     }
 
     return {
@@ -123,6 +145,10 @@ var UIController = (function () {
 
             fieldsArr[0].focus();
         },
+        
+        displayBudget: function(obj) {
+
+        },
 
         getDOMstrings: function () {
             return DOMstrings;
@@ -130,9 +156,9 @@ var UIController = (function () {
     }
 
 })();
-
-
-// GLOBAL APP CONTROLLER
+/**
+ * GLOBAL APP CONTROLLER
+ */
 var controller = (function (budgetCtrl, UICtrl) {
 
     var setupEventListeners = function () {
@@ -152,11 +178,13 @@ var controller = (function (budgetCtrl, UICtrl) {
     };
 
     var updateBudget = function () {
+        var budget;
         // 1. Calculate the budget
-
+        budgetCtrl.calculateBudget();
         // 2. return budget
-
+        budget = budgetCtrl.getBudget();
         // 3. Display the budget in the UI
+        
     };
 
     var ctrlAddItem = function () {
